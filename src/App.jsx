@@ -7,7 +7,22 @@ function App() {
   const [name, setName] = useState("");
   const [mail, setMail] = useState("");
   const [address, setAdress] = useState("");
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([
+    {
+      id: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
+      name: "Honório de Freitas",
+      email: "honorio@gmail.com",
+      address: "Rua do honorio",
+    },
+    {
+      id: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
+      name: "Renata Vasconcelos",
+      email: "donosdadbola@gmail.com",
+      address: "Rua Futebolistica",
+    },
+  ]);
+
+  console.log("users>>>", users);
 
   useEffect(() => {
     const usersURI = "http://localhost:8000/users";
@@ -25,11 +40,15 @@ function App() {
     fetchUsers();
   }, []);
 
-  const addUsers = async (elem) => {
+  const addUsers = async (e) => {
     try {
+      e.preventDefault();
       const result = await axios
         .get("/")
-        .then((res) => res.data)
+        .then((res) => {
+          const result = res.data;
+          setUsers((prevState) => [...prevState, result]);
+        })
         .catch(err);
       return result;
     } catch (err) {
@@ -37,10 +56,22 @@ function App() {
     }
   };
 
-  const addUserById = async (e) => {
-    // todo
-    console.log(e.target.value);
+  const getUser = async (e) => {
+    setUsers(
+      {
+        ...props,
+      },
+      e.target.value
+    );
   };
+
+  const getUserById = async (id, e) => {
+    // todo
+  };
+
+  const cleanUser = () => {
+    // todo
+  }
 
   const updateUsers = async (id, elem) => {
     // todo
@@ -53,7 +84,7 @@ function App() {
   return (
     <>
       <h1>Directions App</h1>
-      <form className="form__users">
+      <form className="form__users" onSubmit={addUsers}>
         <label htmlFor="nome">
           Nome:
           <input
@@ -81,10 +112,15 @@ function App() {
             onChange={(e) => setAdress(e.target)}
           />
         </label>
-        <button className="btn__users" onClick={(e) => addUsers(e)}>
+        <button className="btn__users" type="submit">
           Adicionar usuário
         </button>
       </form>
+      {users.map((item) => (
+        <ul key={item.id}>
+          <li>{item.name || "sadfsdf"}</li>
+        </ul>
+      ))}
     </>
   );
 }

@@ -45,5 +45,6 @@ label {
   display: block;
 }
 
-input {
+li {
+  list-style-type: none;
 }
