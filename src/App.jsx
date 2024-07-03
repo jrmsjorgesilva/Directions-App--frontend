@@ -2,83 +2,97 @@ import { useEffect, useState } from "react";
 // import mockUsers from "./mock/mockUsers";
 import "./App.css";
 import axios from "axios";
+// components
+import Example from "./components/Example";
 
 function App() {
-  const [name, setName] = useState("");
-  const [mail, setMail] = useState("");
-  const [address, setAdress] = useState("");
-  const [users, setUsers] = useState([
+  const [name, setName] = useState(() => "");
+  const [email, setEmail] = useState(() => "");
+  const [address, setAddress] = useState(() => "");
+  const [users, setUsers] = useState(() => [
     {
-      id: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
+      _id: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
       name: "Honório de Freitas",
       email: "honorio@gmail.com",
       address: "Rua do honorio",
     },
     {
-      id: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
+      _id: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
       name: "Renata Vasconcelos",
       email: "donosdadbola@gmail.com",
       address: "Rua Futebolistica",
     },
   ]);
 
-  console.log("users>>>", users);
+  const usersURI = "http://localhost:8000/users";
 
   useEffect(() => {
-    const usersURI = "http://localhost:8000/users";
     const fetchUsers = async () => {
       try {
-        const result = await axios
+        await axios
           .get(usersURI)
-          .then((response) => response.data)
+          .then((response) => {
+            const data = response.data;
+            console.log("data", data);
+            setUsers((prevState) => [...data]);
+          })
           .catch((err) => console.error(err));
-        console.log("result->", result);
       } catch (err) {
-        return res.status(412).json(err);
+        return console.error(err);
       }
     };
     fetchUsers();
   }, []);
 
   const addUsers = async (e) => {
-    try {
-      e.preventDefault();
-      const result = await axios
-        .get("/")
-        .then((res) => {
-          const result = res.data;
-          setUsers((prevState) => [...prevState, result]);
-        })
-        .catch(err);
-      return result;
-    } catch (err) {
-      return res.status(412).json(err);
-    }
+    e.preventDefault();
+    if (!name || !email || !address) return;
+    console.log("user added", e);
+    const data = {
+      _id: () => Math.floor(Math.ramdom() * Number.MAX_SAFE_INTEGER),
+      name: name,
+      email: email,
+      address: address,
+    };
+    setUsers((prevState) => [...prevState, data]);
+    cleanUser();
   };
 
-  const getUser = async (e) => {
-    setUsers(
-      {
-        ...props,
-      },
-      e.target.value
-    );
-  };
+  const getUser = async (e) => {};
 
-  const getUserById = async (id, e) => {
+  const getUserById = async (_id, e) => {
     // todo
   };
 
   const cleanUser = () => {
     // todo
-  }
-
-  const updateUsers = async (id, elem) => {
-    // todo
+    setName("");
+    setEmail("");
+    setAddress("");
+    // ref.current.focus();
+    console.log("user cleaned");
   };
 
-  const deleteUsers = async (id) => {
+  const updateUsers = async (_id) => {
     // todo
+    if (!_id || !name || !email || !address) return;
+    const userToUpdate = {
+      _id,
+      name,
+      email,
+      address,
+    };
+    deleteUsers(_id);
+    setUsers((prevState) => [...prevState, userToUpdate]);
+    cleanUser();
+  };
+
+  const deleteUsers = async (_id) => {
+    // todo
+    if (!_id) return;
+    const userToDelete = users;
+    const result = userToDelete.filter((item) => item._id !== _id);
+    setUsers((prevState) => [...result]);
   };
 
   return (
@@ -90,8 +104,9 @@ function App() {
           <input
             className="input__users--nome"
             type="text"
+            value={name}
             placeholder="nome"
-            onChange={(e) => setName(e.target)}
+            onChange={(e) => setName(e.target.value)}
           />
         </label>
         <label htmlFor="email">
@@ -99,8 +114,9 @@ function App() {
           <input
             className="input__users--email"
             type="text"
+            value={email}
             placeholder="email"
-            onChange={(e) => setMail(e.target)}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </label>
         <label htmlFor="endereco">
@@ -108,8 +124,9 @@ function App() {
           <input
             className="input__users--address"
             type="text"
+            value={address}
             placeholder="endereço"
-            onChange={(e) => setAdress(e.target)}
+            onChange={(e) => setAddress(e.target.value)}
           />
         </label>
         <button className="btn__users" type="submit">
@@ -117,10 +134,15 @@ function App() {
         </button>
       </form>
       {users.map((item) => (
-        <ul key={item.id}>
-          <li>{item.name || "sadfsdf"}</li>
+        <ul key={item._id}>
+          <li>{item.name}</li>
+          <li>{item.email}</li>
+          <li>{item.address}</li>
+          <button onClick={() => updateUsers(item._id)}>Atualizar</button>
+          <button onClick={() => deleteUsers(item._id)}>Deleter</button>
         </ul>
       ))}
+      <Example />
     </>
   );
 }
